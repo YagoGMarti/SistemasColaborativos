@@ -6,9 +6,12 @@
 
 <h2>Lista de archivos</h2>
 
-<p>
-    @Html.ActionLink("Subir archivo", "Crear")
-</p>
+@Html.Partial("CrearPartial", new SistemasColaborativos.Models.ArchivoAdjunto())
+
+@if (ViewBag.Errores != null)
+{
+    <span class="text-danger">@ViewBag.Errores</span>
+}
 
 <table class="table">
     <tr>
@@ -24,22 +27,23 @@
         <th></th>
     </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.Nombre)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Formato)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.ContentLength) bytes
-        </td>
-        <td>
-            @Html.ActionLink("Descargar", "Adjunto", new { id = item.Id }) |
-            @Html.ActionLink("Eliminar", "Delete", new { id = item.Id }, new { onclick = "return confirm('Desea eliminar?');" })
-        </td>
-    </tr>
-}
-
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Nombre)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Formato)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ContentLength) KB
+            </td>
+            <td>
+                @Html.ActionLink("Descargar", "Adjunto", new { id = item.Id }) |
+                @Html.ActionLink("Eliminar", "Delete", new { id = item.Id }, new { onclick = "return confirm('Desea eliminar?');" })
+            </td>
+        </tr>
+    }
 </table>
+

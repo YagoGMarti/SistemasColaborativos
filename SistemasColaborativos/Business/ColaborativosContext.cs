@@ -12,10 +12,9 @@ namespace SistemasColaborativos.Business
     public class ColaborativosContext : DbContext
     {
 
-        public ColaborativosContext() : base()
-        //: base("ColaborativosEntitiesConnectionString")
+        public ColaborativosContext() : base("Colaborativos")
         {
-            Database.SetInitializer<ColaborativosContext>(new DropCreateDatabaseAlways<ColaborativosContext>());
+            //Database.SetInitializer<ColaborativosContext>(new DropCreateDatabaseAlways<ColaborativosContext>());
         }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)

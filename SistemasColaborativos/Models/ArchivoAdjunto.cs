@@ -20,18 +20,18 @@ namespace SistemasColaborativos.Models
         [DisplayName("Tamaño")]
         public byte[] Content { get; set; }
 
-        public long ContentLength => Content?.Length ?? 0;
+        public long ContentLength => Content?.Length / 1024 ?? 0;
 
         [NotMapped]
-        public HttpPostedFileBase Imagen { get; set; }
+        public HttpPostedFileBase Adjunto { get; set; }
 
         public void SetContent()
         {
-            Content = new byte[Imagen.InputStream.Length];
-            Imagen.InputStream.Read(Content, 0, Imagen.ContentLength);
-            Imagen.InputStream.Close();
-            Nombre = Imagen.FileName;
-            Formato = Imagen.ContentType;
+            Content = new byte[Adjunto.InputStream.Length];
+            Adjunto.InputStream.Read(Content, 0, Adjunto.ContentLength);
+            Adjunto.InputStream.Close();
+            Nombre = Adjunto.FileName;
+            Formato = Adjunto.ContentType;
         }
     }    
 }
