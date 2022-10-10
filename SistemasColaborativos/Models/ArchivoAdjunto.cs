@@ -20,6 +20,8 @@ namespace SistemasColaborativos.Models
         [DisplayName("Tamaño")]
         public byte[] Content { get; set; }
 
+        [NotMapped]
+        [DisplayName("Tamaño")] 
         public long ContentLength => Content?.Length / 1024 ?? 0;
 
         [NotMapped]

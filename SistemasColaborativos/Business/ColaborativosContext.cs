@@ -1,5 +1,4 @@
-﻿//using MySql.Data.MySqlClient;
-using SistemasColaborativos.Models;
+﻿using SistemasColaborativos.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -11,7 +10,6 @@ namespace SistemasColaborativos.Business
 {
     public class ColaborativosContext : DbContext
     {
-
         public ColaborativosContext() : base("Colaborativos")
         {
             //Database.SetInitializer<ColaborativosContext>(new DropCreateDatabaseAlways<ColaborativosContext>());
