@@ -1,0 +1,110 @@
+﻿@model IEnumerable<SistemasColaborativos.Transitional.SemanaCalendario>
+
+@{
+    ViewBag.Title = "VerTurnos";
+}
+<br>
+<div class="container text-center">
+    <div class="row justify-content-md-center">
+        <div class="col-xs-1 col-xs-offset-2">
+            <div class="btn" onclick="location.href='@(Url.Action("Prev", new { fecha = ViewBag.FechaReferencia }))'">
+                <img src="~/Content/Img/chevron-left.svg" alt="Bootstrap" width="32" height="32">
+            </div>
+        </div>
+        <div class="col-xs-4 col-xs-offset-1" style="height: 5vh; display: table;">
+            <span class="h2" style="vertical-align: middle; display:table-cell">
+                @ViewBag.FechaReferencia.ToString("MMMM").ToUpper() - @ViewBag.FechaReferencia.Year
+            </span>
+        </div>
+        <div class="col-xs-1 col-xs-offset-1">
+            <div class="btn" onclick="location.href='@(Url.Action("Next", new { fecha = ViewBag.FechaReferencia }))'">
+                <img src="~/Content/Img/chevron-right.svg" alt="Bootstrap" width="32" height="32">
+            </div>
+        </div>
+    </div>
+</div>
+<br>
+<table class="table" style="table-layout: fixed;">
+    <tr>
+        <td class="text-center">
+            Domingo
+        </td>
+        <td class="text-center">
+            Lunes
+        </td>
+        <td class="text-center">
+            Martes
+        </td>
+        <td class="text-center">
+            Miércoles
+        </td>
+        <td class="text-center">
+            Jueves
+        </td>
+        <td class="text-center">
+            Viernes
+        </td>
+        <td class="text-center">
+            Sábado
+        </td>
+    </tr>
+
+    @foreach (SistemasColaborativos.Transitional.SemanaCalendario semana in Model)
+    {
+        <tr class="day-active">
+            @foreach (SistemasColaborativos.Transitional.DiaCalendario dia in semana.DiasTurnos)
+            {
+                if (dia != null)
+                {
+                    <td class="text-center day-active">
+                        <span>@dia.Fecha.Day</span>
+                        <br>
+                        @if (dia.Turnos != null &&
+                        (dia.Fecha.DayOfWeek != DayOfWeek.Saturday && dia.Fecha.DayOfWeek != DayOfWeek.Sunday))
+                        {
+                            if (@dia.Turnos.Count() > 0)
+                            {
+                                <span>
+                                    <b>turnos dados:@dia.Turnos.Count() </b> - 
+                                    <span class="btn-link" onclick="ListarTurnos('@dia.Fecha')">ver</span>
+                                </span>
+                            }
+                            else
+                            {
+                                <span> sin turnos </span>
+                            }
+                        }
+                        else
+                        {
+                            <span style="color:white">   .</span>
+                        }
+                    </td>
+                }
+                else
+                {
+                    <td></td>
+                }
+            }
+        </tr>
+    }
+</table>
+
+<hr />
+<hr />
+
+@*<partial name="ListaTurnos" />*@
+<div id="ListarTurnos"></div>
+
+<script>
+    function ListarTurnos(fecha) {
+            $.ajax({
+                url: '/Turnos/ListarTurnos',
+                type: 'GET',
+                cache: false,
+                data: data = 'fecha=' + fecha,
+                success: function (result) {
+                    $('#ListarTurnos').html(result);
+                }
+            });
+        };
+</script>

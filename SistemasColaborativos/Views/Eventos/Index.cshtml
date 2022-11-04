@@ -1,0 +1,17 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Gestión de turnos.</h2>
+<br>
+<div class="row" style="padding-bottom:10px">
+    <input type="button" value="Nuevo turno" class="btn col-lg-3"
+           onclick=" window.location.href='@Url.Action("NuevoTurno", "Turnos")'" />
+</div>
+
+<div class="row" style="padding-bottom:10px">
+    <input type="button" value="Ver turnos" class="btn col-lg-3"
+           onclick=" window.location.href='@Url.Action("VerTurnos", "Turnos")'" />
+</div>
+

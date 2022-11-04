@@ -22,3 +22,7 @@ select,
 textarea {
     max-width: 280px;
 }
+
+.day-active td:hover {
+    background-color: #d1d1d1;
+}
