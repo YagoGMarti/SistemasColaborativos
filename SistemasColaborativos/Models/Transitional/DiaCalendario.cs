@@ -8,14 +8,14 @@ namespace SistemasColaborativos.Transitional
 {
     public class DiaCalendario
     {
-        public DiaCalendario(DateTime fecha, IEnumerable<Turno> turnos)
+        public DiaCalendario(DateTime fecha, IEnumerable<Evento> eventos)
         {
             Fecha = fecha;
-            Turnos = turnos;
+            Eventos = eventos;
         }
 
         public DateTime Fecha { get; set; }
-        public IEnumerable<Turno> Turnos { get; set; }
-        public IEnumerable<HoraCalendario> HoraCalendarios { get; set; }
+        public IEnumerable<Evento> Eventos { get; set; }
+        //public IEnumerable<HoraCalendario> HoraCalendarios { get; set; }
     }
 }

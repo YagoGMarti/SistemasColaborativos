@@ -7,16 +7,11 @@ namespace SistemasColaborativos.Controllers
 {
     public class ArchivosAdjuntosController : BaseController
     {
-
-        // GET: ArchivosAdjuntos
         public ActionResult Index()
         {
             return View(_context.ArchivosAdjuntos.ToList());
         }
 
-        // POST: ArchivosAdjuntos/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         public ActionResult Crear(ArchivoAdjunto archivoAdjunto)
         {
@@ -42,7 +37,6 @@ namespace SistemasColaborativos.Controllers
             return File(adjunto.Content, adjunto.Formato, adjunto.Nombre);
         }
 
-        // GET: ArchivosAdjuntos/Delete/5
         public ActionResult Delete(Guid? id)
         {
             ArchivoAdjunto archivoAdjunto = _context.ArchivosAdjuntos.Find(id);

@@ -17,21 +17,14 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @Html.ActionLink("Seminario Sistemas Colaborativos", "Index", "Turnos", new { area = "" }, new { @class = "navbar-brand" })
+                <div class="btn" onclick="location.href='@(Url.Action("Index", "Eventos", new { fecha = ViewBag.FechaReferencia }))'">
+                    <img style="background-color:grey" src="~/Content/Img/house.svg" alt="Bootstrap" width="32" height="32">
+                </div>
+                @Html.ActionLink("Home", "Index", "Eventos", new { area = "" }, new { @class = "navbar-brand" })
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                 </ul>
-                @if (@Session["Usuario"] != null)
-                {
-                    <span class="navbar-right navhead" style="margin-top: 1em; color:white !important;">
-                        Bienvenido: @Session["UsuarioLogueado"] @Session["Usuario"] - @Html.ActionLink("Cerrar sesión", "Logout", "Login", new { area = "" }, new { @style = "color:white !important;" })
-                    </span>
-                }
-                @if (@Session["Usuario"] == null)
-                {
-                    <a href="@Url.Action("Index", "Login")" class="navbar-right navhead" style="margin-top: 1em; color:white !important;">Iniciar sesión</a>
-                }
             </div>
         </div>
     </div>

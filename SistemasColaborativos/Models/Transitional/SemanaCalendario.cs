@@ -8,9 +8,9 @@ namespace SistemasColaborativos.Transitional
     public class SemanaCalendario
     {
         public SemanaCalendario() {
-            DiasTurnos = new DiaCalendario[7];
+            DiasEventos = new DiaCalendario[7];
         }
 
-        public DiaCalendario[] DiasTurnos { get; set; }
+        public DiaCalendario[] DiasEventos { get; set; }
     }
 }

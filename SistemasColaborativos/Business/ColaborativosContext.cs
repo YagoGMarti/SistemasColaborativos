@@ -1,5 +1,4 @@
 ﻿using SistemasColaborativos.Models;
-using SistemasColaborativos.Models.Transitional;
 using SistemasColaborativos.Transitional;
 using System;
 using System.Collections.Generic;
@@ -17,37 +16,28 @@ namespace SistemasColaborativos.Business
             Database.SetInitializer<ColaborativosContext>(new SchoolDBInitializer<ColaborativosContext>());
         }
 
-        internal InicioSesion IniciarSesion(string usuario, string clave)
+        internal void GuardarEvento(Evento evento)
         {
-            if (Usuarios.Any(x => x.Nombre == usuario && x.Clave == clave))
-                return new InicioSesion() { Usuario = usuario };
-            return null;
+            Eventos.Add(evento);
+            this.SaveChanges();
         }
 
-        internal IEnumerable<Turno> GetTurnos(DateTime fecha)
+        internal void EditarEvento(Evento evento)
         {
-            var inicioDia = fecha.Date;
-            var finDia = fecha.Date.AddDays(1);
-
-            var turnos = Turnos.Where(x => x.Fecha < finDia && x.Fecha > inicioDia)
-                    .Include(x => x.Medico)
-                    .Include(x => x.Paciente)
-                    .Include(x => x.Sucursal)
-                    .OrderByDescending(x => x.Fecha)
-                    .ToList();
-
-            return turnos;
+            var nuevoEvento = Eventos.Find(evento.ID);
+            nuevoEvento.Fecha = evento.Fecha;
+            nuevoEvento.Titulo = evento.Titulo;
+            nuevoEvento.Objetivo = evento.Objetivo;
+            this.SaveChanges();
         }
+
 
         internal IEnumerable<SemanaCalendario> GetDiasCalendario(DateTime fechaReferencia)
         {
             var primerDia = new DateTime(fechaReferencia.Year, fechaReferencia.Month, 1);
             var ultimoDia = (primerDia.AddMonths(1)).AddDays(-1);
 
-            var turnos = Turnos.Where(x => x.Fecha < ultimoDia && x.Fecha > primerDia)
-                    //.Include(x => x.Medico)
-                    //.Include(x => x.Paciente)
-                    //.Include(x => x.Sucursal)
+            var eventos = Eventos.Where(x => x.Fecha < ultimoDia && x.Fecha > primerDia)
                     .ToList();
 
             SemanaCalendario[] semanas = new SemanaCalendario[6];
@@ -57,7 +47,7 @@ namespace SistemasColaborativos.Business
             for (int dia = 0; dia < 7; dia++)
             {
                 if (dia >= (diaInicial))
-                    semanas[0].DiasTurnos[dia] = new DiaCalendario(primerDia.AddDays(dia - diaInicial), turnos.Where(x => x.Fecha.Date == primerDia.AddDays(dia - diaInicial).Date));
+                    semanas[0].DiasEventos[dia] = new DiaCalendario(primerDia.AddDays(dia - diaInicial), eventos.Where(x => x.Fecha.Date == primerDia.AddDays(dia - diaInicial).Date));
             }
 
             for (int sem = 1; sem < semanas.Length; sem++)
@@ -65,179 +55,52 @@ namespace SistemasColaborativos.Business
                 {
                     var dias = (sem * 7 + dia) - diaInicial;
                     if (primerDia.AddDays(dias).Month == primerDia.Month)
-                        semanas[sem].DiasTurnos[dia] = new DiaCalendario(primerDia.AddDays(dias), turnos.Where(x => x.Fecha.Date == primerDia.AddDays(dias).Date));
+                        semanas[sem].DiasEventos[dia] = new DiaCalendario(primerDia.AddDays(dias), eventos.Where(x => x.Fecha.Date == primerDia.AddDays(dias).Date));
                 }
 
-            return semanas.Where(x => x.DiasTurnos.Any(dia => dia != null));
+            return semanas.Where(x => x.DiasEventos.Any(dia => dia != null));
         }
 
-        internal IEnumerable<HoraCalendario> GetOpciones(NuevoTurno nuevoTurno)
+        internal void BorrarEvento(Guid eventoID)
         {
-            List<HoraCalendario> horarios = new List<HoraCalendario>();
-            Sucursal sucursal = GetSucursal(Guid.Parse(nuevoTurno.SucursalId));
-
-            var medicos = Medicos.Where(
-                x => x.Especialidad == nuevoTurno.Especialidad
-                && x.Sucursal.Id == sucursal.Id)
-                    .ToList();
-
-            var primerDia = nuevoTurno.Fecha.AddDays(-(int)nuevoTurno.Fecha.DayOfWeek + 1);
-            var ultimoDia = primerDia.AddDays(4);
-            var turnos = Turnos.Where(x => x.Fecha < ultimoDia && x.Fecha > nuevoTurno.Fecha
-                && x.Sucursal.Id == sucursal.Id)
-                    .ToList();
-            medicos.ForEach(med => med.Turnos = turnos.Where(x => x.Medico.Id == med.Id));
-
-            var horarioMIN = medicos.Min(x => x.HorarioDesde);
-            var horarioMAX = medicos.Max(x => x.HorarioHasta);
-            while (horarioMIN < horarioMAX)
-            {
-                foreach (var med in medicos)
-                {
-
-                }
-                
-                horarioMIN += new TimeSpan(0, 30, 0);
-            }
-
-            return horarios;
+            var evento = GetEvento(eventoID);
+            Eventos.Remove(evento);
+            SaveChanges();
         }
 
-        public Sucursal GetSucursal(Guid guid) => Sucursales.FirstOrDefault(x => x.Id == guid);
-        public IEnumerable<Sucursal> GetSucursales() => Sucursales.Select(x => x);
-        public Medico GetMedico(Guid guid) => Medicos.FirstOrDefault(x => x.Id == guid);
-        public Paciente GetPaciente(Guid guid) => Pacientes.FirstOrDefault(x => x.Id == guid);
-        public Turno GetTurno(Guid guid) => Turnos.FirstOrDefault(x => x.Id == guid);
+        internal IEnumerable<Evento> GetEventos(DateTime fecha)
+        {
+            var inicioDia = fecha.Date;
+            var finDia = inicioDia.AddDays(1).AddSeconds(-1);
 
-        public DbSet<Usuario> Usuarios { get; set; }
-        public DbSet<Sucursal> Sucursales { get; set; }
-        public DbSet<Medico> Medicos { get; set; }
-        public DbSet<Paciente> Pacientes { get; set; }
-        public DbSet<Turno> Turnos { get; set; }
+            var eventos = Eventos.Where(x => x.Fecha <= finDia && x.Fecha >= inicioDia).AsEnumerable();
+            return eventos;
+        }
 
-        public class SchoolDBInitializer<T> : DropCreateDatabaseAlways<ColaborativosContext>
+        internal Evento GetEvento(Guid eventoID) => Eventos.FirstOrDefault(x => x.ID == eventoID);
+        internal IEnumerable<Evento> GetEventos() => Eventos.AsEnumerable();
+
+        public DbSet<Evento> Eventos { get; set; }
+
+        public class SchoolDBInitializer<T> : CreateDatabaseIfNotExists<ColaborativosContext>
         {
             protected override void Seed(ColaborativosContext context)
             {
-                context.Usuarios.Add(new Usuario(Guid.Parse("00000000-0000-0000-0000-000000000001"), "profe", "profe"));
-                context.Sucursales.Add(new Sucursal(Guid.Parse("00000000-0000-0000-0000-000000000001"), "Cerro", "Avenida Recta Martinolli 5151"));
-                context.Pacientes.Add(new Paciente(Guid.Parse("00000000-0000-0000-0000-000000000001"), "Juan Perez", ObraSocialEnum.MET));
-                context.Pacientes.Add(new Paciente(Guid.Parse("00000000-0000-0000-0000-000000000002"), "Lucas Robles", ObraSocialEnum.MET));
-                context.Pacientes.Add(new Paciente(Guid.Parse("00000000-0000-0000-0000-000000000003"), "Martin Luna", ObraSocialEnum.PAMI));
-                context.Pacientes.Add(new Paciente(Guid.Parse("00000000-0000-0000-0000-000000000004"), "Marga Lina", ObraSocialEnum.PAMI));
-                context.SaveChanges();
+                context.Eventos.Add(new Evento(new DateTime(2022, 08, 21), "Actividad 1 [API1]",
+                    "Analizar y comparar sitios web a través de software pertinente que permita realizar un análisis FODA sobre las páginas seleccionadas."));
 
-                Sucursal sucursal = context.Sucursales.Local.First(x => x.Id == GetGuid("00000000-0000-0000-0000-000000000001"));
+                context.Eventos.Add(new Evento(new DateTime(2022, 09, 11), "Actividad 2 [API2]",
+                    "Diseñar y desarrollar los módulos de una aplicación móvil compartiendo el proyecto realizado en un almacenamiento gratuito en la nube."));
 
-                context.Medicos.Add(new Medico(Guid.Parse("00000000-0000-0000-0000-000000000001"), "Clinico 01", "584621", EspecialidadEnum.ClinicaMedica,
-                    new TimeSpan(09, 00, 00), new TimeSpan(19, 00, 00), sucursal));
-                context.Medicos.Add(new Medico(Guid.Parse("00000000-0000-0000-0000-000000000002"), "Clinico 02", "384623", EspecialidadEnum.ClinicaMedica,
-                    new TimeSpan(10, 00, 00), new TimeSpan(17, 00, 00), sucursal));
-                context.Medicos.Add(new Medico(Guid.Parse("00000000-0000-0000-0000-000000000011"), "Cirujano 01", "484627", EspecialidadEnum.CirugiaGeneral,
-                   new TimeSpan(14, 00, 00), new TimeSpan(17, 00, 00), sucursal));
-                context.Medicos.Add(new Medico(Guid.Parse("00000000-0000-0000-0000-000000000101"), "Imagenes 01", "484627", EspecialidadEnum.DiagnosticoPorImagenes,
-                   new TimeSpan(07, 00, 00), new TimeSpan(13, 00, 00), sucursal));
-                context.Medicos.Add(new Medico(Guid.Parse("00000000-0000-0000-0000-000000000102"), "Imagenes 02", "484627", EspecialidadEnum.DiagnosticoPorImagenes,
-                   new TimeSpan(13, 00, 00), new TimeSpan(20, 00, 00), sucursal));
-                context.Medicos.Add(new Medico(Guid.Parse("00000000-0000-0000-0000-000000001001"), "Laboratorio 01", "484627", EspecialidadEnum.Laboratorio,
-                   new TimeSpan(07, 00, 00), new TimeSpan(14, 00, 00), sucursal));
-                context.Medicos.Add(new Medico(Guid.Parse("00000000-0000-0000-0000-000000001002"), "Laboratorio 02", "484627", EspecialidadEnum.Laboratorio,
-                   new TimeSpan(06, 00, 00), new TimeSpan(13, 00, 00), sucursal));
+                context.Eventos.Add(new Evento(new DateTime(2022, 10, 16), "Actividad 3 [API3]",
+                    "Diseñar y programar el SharePoint Framework para el caso presentado como situación problemática del lado del cliente."));
 
-                context.SaveChanges();
-
-                context.Turnos.Add(new Turno(Guid.Parse("00000000-0000-0001-0001-000000000001"), new DateTime(2022, 11, 10, 10, 30, 00),
-                    context.Pacientes.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000001")), sucursal,
-                    context.Medicos.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000001")) // Clinico 01
-                    ));
-
-                context.Turnos.Add(new Turno(Guid.Parse("00000000-0000-0001-0001-000000100001"), new DateTime(2022, 11, 01, 12, 30, 00),
-                    context.Pacientes.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000001")), sucursal,
-                    context.Medicos.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000001")) // Clinico 01
-                    ));
-
-                context.Turnos.Add(new Turno(Guid.Parse("00000000-0000-0002-0001-000000000002"), new DateTime(2022, 11, 11, 13, 00, 00),
-                    context.Pacientes.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000001")), sucursal,
-                    context.Medicos.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000002")) // Clinico 02
-                    ));
-
-                context.Turnos.Add(new Turno(Guid.Parse("00000000-0000-1000-0004-000000000003"), new DateTime(2022, 10, 24, 08, 00, 00),
-                    context.Pacientes.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000004")), sucursal,
-                    context.Medicos.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000001001")) // Laboratorio 01
-                    ));
-                context.Turnos.Add(new Turno(Guid.Parse("00000000-0000-1000-0004-000000000004"), new DateTime(2022, 10, 31, 08, 00, 00),
-                    context.Pacientes.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000004")), sucursal,
-                    context.Medicos.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000001001")) // Laboratorio 01
-                    ));
-                context.Turnos.Add(new Turno(Guid.Parse("00000000-0000-1000-0004-000000000005"), new DateTime(2022, 11, 07, 08, 00, 00),
-                    context.Pacientes.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000004")), sucursal,
-                    context.Medicos.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000001002")) // Laboratorio 02
-                    ));
-                context.Turnos.Add(new Turno(Guid.Parse("00000000-0000-1000-0004-000000000006"), new DateTime(2022, 11, 14, 08, 00, 00),
-                    context.Pacientes.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000004")), sucursal,
-                    context.Medicos.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000001002")) // Laboratorio 02
-                    ));
-                context.Turnos.Add(new Turno(Guid.Parse("00000000-0000-1000-0004-000000000007"), new DateTime(2022, 11, 21, 08, 00, 00),
-                    context.Pacientes.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000004")), sucursal,
-                    context.Medicos.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000001001")) // Laboratorio 01
-                    ));
-
-                context.Turnos.Add(new Turno(Guid.Parse("00000000-0000-0101-0004-000000000003"), new DateTime(2022, 10, 24, 08, 00, 00),
-                    context.Pacientes.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000004")), sucursal,
-                    context.Medicos.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000101")) // Imagenes 01
-                    ));
-                context.Turnos.Add(new Turno(Guid.Parse("00000000-0000-0102-0004-000000000004"), new DateTime(2022, 10, 31, 08, 00, 00),
-                    context.Pacientes.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000004")), sucursal,
-                    context.Medicos.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000102")) // Imagenes 02
-                    ));
-                context.Turnos.Add(new Turno(Guid.Parse("00000000-0000-0102-0004-000000000005"), new DateTime(2022, 11, 07, 08, 00, 00),
-                    context.Pacientes.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000004")), sucursal,
-                    context.Medicos.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000102")) // Imagenes 02
-                    ));
-                context.Turnos.Add(new Turno(Guid.Parse("00000000-0000-0102-0004-000000000006"), new DateTime(2022, 11, 14, 08, 00, 00),
-                    context.Pacientes.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000004")), sucursal,
-                    context.Medicos.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000102")) // Imagenes 02
-                    ));
-                context.Turnos.Add(new Turno(Guid.Parse("00000000-0000-0102-0004-000000000007"), new DateTime(2022, 11, 21, 08, 00, 00),
-                    context.Pacientes.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000004")), sucursal,
-                    context.Medicos.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000102")) // Imagenes 02
-                    ));
-
-                context.Turnos.Add(new Turno(Guid.Parse("00000000-0000-0102-0004-000000000010"), new DateTime(2022, 12, 07, 08, 00, 00),
-                    context.Pacientes.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000004")), sucursal,
-                    context.Medicos.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000102")) // Imagenes 02
-                    ));
-                context.Turnos.Add(new Turno(Guid.Parse("00000000-0000-0102-0004-000000000011"), new DateTime(2022, 12, 14, 08, 00, 00),
-                    context.Pacientes.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000004")), sucursal,
-                    context.Medicos.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000102")) // Imagenes 02
-                    ));
-                context.Turnos.Add(new Turno(Guid.Parse("00000000-0000-0102-0004-000000000012"), new DateTime(2022, 12, 21, 08, 00, 00),
-                    context.Pacientes.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000004")), sucursal,
-                    context.Medicos.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000102")) // Imagenes 02
-                    ));
-                context.Turnos.Add(new Turno(Guid.Parse("00000000-0000-0102-0004-000000000013"), new DateTime(2022, 12, 28, 08, 00, 00),
-                    context.Pacientes.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000004")), sucursal,
-                    context.Medicos.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000102")) // Imagenes 02
-                    ));
-
-                context.Turnos.Add(new Turno(Guid.Parse("00000000-0000-0001-0003-000000000051"), new DateTime(2022, 11, 04, 10, 30, 00),
-                    context.Pacientes.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000003")), sucursal,
-                    context.Medicos.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000001")) // Clinico 01
-                    ));
-
-                context.Turnos.Add(new Turno(Guid.Parse("00000000-0000-0001-0003-000000000061"), new DateTime(2022, 11, 04, 10, 30, 00),
-                    context.Pacientes.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000003")), sucursal,
-                    context.Medicos.Local.First(x => x.Id == Guid.Parse("00000000-0000-0000-0000-000000000001")) // Clinico 01
-                    ));
+                context.Eventos.Add(new Evento(new DateTime(2022, 11, 13), "Actividad 4 [API4]",
+                    "Diseñar y programar un calendario para el proyecto del caso presentado como situación problemática, empleando una herramienta de software para tal fin."));
 
                 context.SaveChanges();
 
                 base.Seed(context);
-            }
-
-            private Guid GetGuid(string guid)
-            {
-                return Guid.Parse(guid);
             }
         }
 
@@ -245,8 +108,7 @@ namespace SistemasColaborativos.Business
         {
             modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
         }
-        public DbSet<ArchivoAdjunto> ArchivosAdjuntos { get; set; }
 
-        public System.Data.Entity.DbSet<SistemasColaborativos.Models.Transitional.NuevoTurno> NuevoTurnoes { get; set; }
+        public DbSet<ArchivoAdjunto> ArchivosAdjuntos { get; set; }
     }
 }

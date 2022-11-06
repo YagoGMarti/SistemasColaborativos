@@ -9,10 +9,17 @@ namespace SistemasColaborativos.Controllers
 
         protected bool UsuarioLogueado()
         {
-            if (Session["Usuario"] == null)
-                return false;
+            try
+            {
+                if (Session == null || Session["Usuario"] == null)
+                    return true;
 
-            return true;
+                return false;
+            }
+            catch (System.Exception)
+            {
+                return false;
+            }
         }
     }
 }

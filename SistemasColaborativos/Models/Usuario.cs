@@ -5,9 +5,9 @@ namespace SistemasColaborativos.Models
 {
     public class Usuario
     {
-        public Usuario(Guid id, string nombre, string clave)
+        public Usuario(string nombre, string clave)
         {
-            Id = id;
+            Id = Guid.NewGuid();
             Nombre = nombre;
             Clave = clave;
         }

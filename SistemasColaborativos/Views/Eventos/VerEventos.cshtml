@@ -1,11 +1,14 @@
-﻿@model IEnumerable<SistemasColaborativos.Models.Turno>
+﻿@model IEnumerable<SistemasColaborativos.Models.Evento>
 
 @if (Model != null)
 {
     <table class="table">
         <tr>
+            <th class="col-lg-2">
+                @Html.DisplayNameFor(model => model.Titulo)
+            </th>
             <th>
-                @Html.DisplayNameFor(model => model.Notas)
+                @Html.DisplayNameFor(model => model.Objetivo)
             </th>
         </tr>
 
@@ -13,7 +16,10 @@
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Notas)
+                    @Html.DisplayFor(modelItem => item.Titulo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Objetivo)
                 </td>
             </tr>
         }

@@ -1,0 +1,42 @@
+﻿@model IEnumerable<SistemasColaborativos.Models.Evento>
+
+@{
+    ViewBag.Title = "ListarEventos";
+}
+<h2>Listado</h2>
+
+<table class="table">
+    <tr>
+        <th class="col-lg-1">
+            @Html.DisplayNameFor(model => model.Fecha)
+        </th>
+        <th class="col-lg-2">
+            @Html.DisplayNameFor(model => model.Titulo)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Objetivo)
+        </th>
+        <th class="col-lg-2"></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Fecha)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Titulo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Objetivo)
+            </td>
+            <td>
+                @Html.ActionLink("Editar", "EditarEvento", new { eventoID = item.ID }) |
+                @Html.ActionLink("Detalles", "DetallesEvento", new { eventoID = item.ID }) |
+                @Html.ActionLink("Borrar", "BorrarEvento", new { eventoID = item.ID }, new { onclick = "return confirm('Desea eliminar este evento?');" })
+            </td>
+        </tr>
+    }
+
+</table>

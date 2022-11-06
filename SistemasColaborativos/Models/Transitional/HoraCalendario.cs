@@ -8,10 +8,10 @@ namespace SistemasColaborativos.Transitional
     {
         public HoraCalendario()
         {
-            Turnos = new Turno[5][];
+            Eventos = new Evento[5][];
         }
 
         public TimeSpan Hora { get; set; }
-        public Turno[][] Turnos { get; set; }
+        public Evento[][] Eventos { get; set; }
     }
 }

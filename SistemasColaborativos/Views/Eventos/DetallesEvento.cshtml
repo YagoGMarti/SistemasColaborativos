@@ -1,0 +1,36 @@
+﻿@model SistemasColaborativos.Models.Evento
+
+@{
+    ViewBag.Title = "DetallesEvento";
+}
+
+<h2>Evento</h2>
+
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Fecha)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Fecha)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Titulo)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Titulo)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Objetivo)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Objetivo)
+        </dd>
+    </dl>
+</div>

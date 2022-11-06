@@ -1,17 +1,22 @@
 ﻿
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Eventos";
 }
 
-<h2>Gestión de turnos.</h2>
+<h2>Gestión de eventos.</h2>
 <br>
 <div class="row" style="padding-bottom:10px">
-    <input type="button" value="Nuevo turno" class="btn col-lg-3"
-           onclick=" window.location.href='@Url.Action("NuevoTurno", "Turnos")'" />
+    <input type="button" value="Nuevo evento" class="btn col-lg-3"
+           onclick=" window.location.href='@Url.Action("NuevoEvento", "Eventos")'" />
 </div>
 
 <div class="row" style="padding-bottom:10px">
-    <input type="button" value="Ver turnos" class="btn col-lg-3"
-           onclick=" window.location.href='@Url.Action("VerTurnos", "Turnos")'" />
+    <input type="button" value="Calendario de eventos" class="btn col-lg-3"
+           onclick=" window.location.href='@Url.Action("CalendarioEventos", "Eventos")'" />
+</div>
+
+<div class="row" style="padding-bottom:10px">
+    <input type="button" value="Listar eventos" class="btn col-lg-3"
+           onclick=" window.location.href='@Url.Action("ListarEventos", "Eventos")'" />
 </div>
 

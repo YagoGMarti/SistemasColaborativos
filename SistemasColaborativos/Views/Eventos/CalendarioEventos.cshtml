@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<SistemasColaborativos.Transitional.SemanaCalendario>
 
 @{
-    ViewBag.Title = "VerTurnos";
+    ViewBag.Title = "Calendario Eventos";
 }
 <br>
 <div class="container text-center">
@@ -52,31 +52,29 @@
     @foreach (SistemasColaborativos.Transitional.SemanaCalendario semana in Model)
     {
         <tr class="day-active">
-            @foreach (SistemasColaborativos.Transitional.DiaCalendario dia in semana.DiasTurnos)
+            @foreach (SistemasColaborativos.Transitional.DiaCalendario dia in semana.DiasEventos)
             {
                 if (dia != null)
                 {
                     <td class="text-center day-active">
                         <span>@dia.Fecha.Day</span>
                         <br>
-                        @if (dia.Turnos != null &&
-                        (dia.Fecha.DayOfWeek != DayOfWeek.Saturday && dia.Fecha.DayOfWeek != DayOfWeek.Sunday))
+                        @if (dia.Eventos != null)
                         {
-                            if (@dia.Turnos.Count() > 0)
+                            if (@dia.Eventos.Count() > 0)
                             {
                                 <span>
-                                    <b>turnos dados:@dia.Turnos.Count() </b> - 
-                                    <span class="btn-link" onclick="ListarTurnos('@dia.Fecha')">ver</span>
+                                    <span class="btn-link" onclick="VerEventos('@dia.Fecha')">Detalles</span>
                                 </span>
                             }
                             else
                             {
-                                <span> sin turnos </span>
+                                <span style="color:white"> . </span>
                             }
                         }
                         else
                         {
-                            <span style="color:white">   .</span>
+                            <span style="color:white"> . </span>
                         }
                     </td>
                 }
@@ -90,20 +88,18 @@
 </table>
 
 <hr />
-<hr />
 
-@*<partial name="ListaTurnos" />*@
-<div id="ListarTurnos"></div>
+<div id="VerEventos"></div>
 
 <script>
-    function ListarTurnos(fecha) {
+    function VerEventos(fecha) {
             $.ajax({
-                url: '/Turnos/ListarTurnos',
+                url: '/Eventos/VerEventos',
                 type: 'GET',
                 cache: false,
                 data: data = 'fecha=' + fecha,
                 success: function (result) {
-                    $('#ListarTurnos').html(result);
+                    $('#VerEventos').html(result);
                 }
             });
         };
