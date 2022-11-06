@@ -78,7 +78,7 @@ namespace SistemasColaborativos.Business
         }
 
         internal Evento GetEvento(Guid eventoID) => Eventos.FirstOrDefault(x => x.ID == eventoID);
-        internal IEnumerable<Evento> GetEventos() => Eventos.AsEnumerable();
+        internal IEnumerable<Evento> GetEventos() => Eventos.OrderBy(x => x.Fecha).AsEnumerable();
 
         public DbSet<Evento> Eventos { get; set; }
 
